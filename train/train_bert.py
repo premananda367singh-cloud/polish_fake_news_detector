@@ -76,16 +76,52 @@ class FakeNewsDataset(Dataset):
         }
 
 def load_data():
-    """Load preprocessed data from CSV files."""
+    """Load preprocessed data from TSV files (LIAR dataset format)."""
     logger.info("Loading data...")
     
-    train_df = pd.read_csv(DATA_FILES['train'])
-    val_df = pd.read_csv(DATA_FILES['val'])
-    test_df = pd.read_csv(DATA_FILES['test'])
+    # Column names for LIAR dataset
+    columns = [
+        'id', 'label', 'statement', 'subject', 'speaker', 'job_title',
+        'state', 'party', 'barely_true', 'false', 'half_true', 
+        'mostly_true', 'pants_fire', 'context'
+    ]
+    
+    # Load TSV files
+    train_df = pd.read_csv(DATA_FILES['train'], sep='\t', names=columns, header=None)
+    val_df = pd.read_csv(DATA_FILES['val'], sep='\t', names=columns, header=None)
+    test_df = pd.read_csv(DATA_FILES['test'], sep='\t', names=columns, header=None)
+    
+    # Map labels to binary (0: fake, 1: real)
+    # LIAR has 6 labels: pants-fire, false, barely-true, half-true, mostly-true, true
+    # We'll map to binary: [pants-fire, false, barely-true] -> 0 (fake)
+    #                      [half-true, mostly-true, true] -> 1 (real)
+    label_mapping = {
+        'pants-fire': 0,
+        'false': 0,
+        'barely-true': 0,
+        'half-true': 1,
+        'mostly-true': 1,
+        'true': 1
+    }
+    
+    train_df['label'] = train_df['label'].map(label_mapping)
+    val_df['label'] = val_df['label'].map(label_mapping)
+    test_df['label'] = test_df['label'].map(label_mapping)
+    
+    # Rename statement column to text for consistency
+    train_df['text'] = train_df['statement']
+    val_df['text'] = val_df['statement']
+    test_df['text'] = test_df['statement']
+    
+    # Remove rows with missing labels or text
+    train_df = train_df.dropna(subset=['label', 'text'])
+    val_df = val_df.dropna(subset=['label', 'text'])
+    test_df = test_df.dropna(subset=['label', 'text'])
     
     logger.info(f"Train samples: {len(train_df)}")
     logger.info(f"Validation samples: {len(val_df)}")
     logger.info(f"Test samples: {len(test_df)}")
+    logger.info(f"Label distribution in train: {train_df['label'].value_counts().to_dict()}")
     
     return train_df, val_df, test_df
 

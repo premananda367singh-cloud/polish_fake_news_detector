@@ -83,9 +83,9 @@ PREPROCESSING_CONFIG = {
 DATA_FILES = {
     "raw_fake": RAW_DATA_DIR / "fake",
     "raw_real": RAW_DATA_DIR / "real",
-    "train": PROCESSED_DATA_DIR / "train.csv",
-    "val": PROCESSED_DATA_DIR / "val.csv",
-    "test": PROCESSED_DATA_DIR / "test.csv",
+    "train": PROCESSED_DATA_DIR / "train.tsv",
+    "val": PROCESSED_DATA_DIR / "valid.tsv",  # Note: file is named 'valid.tsv' not 'val.tsv'
+    "test": PROCESSED_DATA_DIR / "test.tsv",
     "full": PROCESSED_DATA_DIR / "full_dataset.csv",
 }
 
