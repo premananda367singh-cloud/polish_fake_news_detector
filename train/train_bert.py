@@ -1,6 +1,7 @@
 """
 Train BERT model for fake news detection
 This script trains BERT independently without ensemble
+FIXED VERSION: Ensures log directory exists before logging
 """
 
 import os
@@ -28,6 +29,9 @@ try:
 except ImportError:
     print("Error: config_english.py not found. Please ensure it's in the same directory.")
     sys.exit(1)
+
+# FIXED: Ensure log directory exists before setting up logging
+BERT_CONFIG['log_dir'].mkdir(parents=True, exist_ok=True)
 
 # Setup logging
 logging.basicConfig(
@@ -350,6 +354,8 @@ def main():
     }
     
     results_file = BERT_CONFIG['save_dir'] / 'results.txt'
+    # FIXED: Ensure save directory exists
+    BERT_CONFIG['save_dir'].mkdir(parents=True, exist_ok=True)
     with open(results_file, 'w') as f:
         for key, value in results.items():
             f.write(f"{key}: {value}\n")
